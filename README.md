@@ -5,6 +5,71 @@
 
 This repo is the home for all of the public go code produced by SDF.  In addition to various tools and services, this repository is the SDK from which you may develop your own applications that integrate with the stellar network.
 
+## Getting started
+
+To develop for Horizon on **macOS 12.13**, install [`brew`](brew.sh) and follow the steps below in your command line:
+
+```sh
+# Install the database dependencies and the go framework.
+brew install postgresql redis go dep
+# Create a go "workspace" where go code related to this repository will be stored.
+# The $GOPATH can be any directory, but the location of this repository within the
+# $GOPATH needs to be located in a go-conventional place. 
+export GOPATH="$(pwd)/stellar-gopath"
+mkdir -pv "$GOPATH/src/github.com/stellar"
+git clone https://github.com/stellar/go.git $GOPATH/src/github.com/stellar/go
+cd "$GOPATH/src/github.com/stellar/go"
+# Download and install all the dependencies for this repository
+dep ensure -v
+```
+
+JetBrain's **GoLand** is a well-supported commercial IDE for Go. Open the `$GOPATH/src/github.com/stellar/go` directory with it. Then in the application's Preferences, open the Go configuration tree, and:
+
+ 1. Visit GOROOT, and set the GOROOT to the `brew` installed location. The dropdown will locate it automatically.
+ 2. Visit GOPATH, and add a Project GOPATH pointing to the directory of your exported GOPATH variable.
+ 3. Visit dep, and check Enable dep integration. The dropdown will locate it automatically.
+ 
+Some tests require the databases to be properly running the background in order to run.
+
+The majority of tests require postgres. First create a data directory using a specific `pg_ctl` command: `pg_ctl initdb -D $GOPATH/data`. Note, the data directory can be anywhere, and there are no conventions in Go for where this directory is specified. Then, to start it as a daemon:
+
+```sh
+# From any directory
+pg_ctl start -D $GOPATH/data
+```
+
+To stop the postgres daemon, use:
+
+```sh
+# From any directory
+pg_ctl stop -D $GOPATH/data
+```
+
+Some tests, like rate limiting and connecting to a mysql database (not typical usage) require those dependencies running when the test runs.
+
+To run redis as a daemon, simply start it in your local directory with a routine POSIX backgrounding pattern:
+
+```sh
+# From any directory
+redis-server >/dev/null 2>&1 &
+```
+
+This will show a PID value you can later use to stop it. For example, if the PID value was 19000, stop it with:
+
+```sh
+kill -2 19000
+```
+
+On macOS 12.13 installed from `brew`, mysql will currently fail to link its command line binaries into the path. Additionally, even when running, the default configuration of mysql does not support the root user login the test in this repository requires.
+
+To run all tests except the mysql test, we'll omit it using the following `go test` command:
+
+```sh
+# From the repository directory
+cd "$GOPATH/src/github.com/stellar/go"
+go test -run "\(\(\?\!mysql\).\)*" ./... -p 8
+```
+
 ## Dependencies
 
 This repository depends upon a [number of external dependencies](./Gopkg.lock), and we use [dep](https://golang.github.io/dep/) to manage them.  Dep is used to populate the [vendor directory](https://golang.github.io/dep/docs/ensure-mechanics.html), ensuring that builds are reproducible even as upstream dependencies are changed. Please see the [dep](https://golang.github.io/dep/) website for installation instructions.
