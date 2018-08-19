@@ -70,6 +70,23 @@ cd "$GOPATH/src/github.com/stellar/go"
 go test -run "\(\(\?\!mysql\).\)*" ./... -p 8
 ```
 
+To build the underlying executables:
+
+```
+# From the repository directory
+CGO_ENABLED=1 go run ./support/scripts/build_release_artifacts/main.go -os darwin
+```
+
+This will place distributions in the `dist/` directory. Extract one, like Horizon, and execute it:
+
+```sh
+cd dist
+tar -xvf horizon-snapshot-darwin-amd64.tar.gz
+./horizon-snapshot-darwin-amd64/horizon --help
+```
+
+These command line arguments correspond to the `main.go` entry point of the respective binary's source tree. For horizon, this file would be located at `services/horizon/main.go`.
+
 ## Dependencies
 
 This repository depends upon a [number of external dependencies](./Gopkg.lock), and we use [dep](https://golang.github.io/dep/) to manage them.  Dep is used to populate the [vendor directory](https://golang.github.io/dep/docs/ensure-mechanics.html), ensuring that builds are reproducible even as upstream dependencies are changed. Please see the [dep](https://golang.github.io/dep/) website for installation instructions.
