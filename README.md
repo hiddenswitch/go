@@ -23,6 +23,8 @@ cd "$GOPATH/src/github.com/stellar/go"
 dep ensure -v
 ```
 
+Your `GOPATH` variable will need to be exported with `export GOPATH=path/to/directory/chosen/above` in every shell. There is no consensus whether a `GOPATH` should exist for an entire single machine, user or logical group of projects. Since the group of projects convention is used here, think of this `GOPATH` variable as the equivalent `source venv/bin/activate`, `rbenv ...`, or `./gradlew ...` "set up" command for a Go environment for this repository's development. It would not necessarily be appropriate to export this `GOPATH` inside a `.bashrc` or `.zshrc` as documented elsewhere.
+
 JetBrain's **GoLand** is a well-supported commercial IDE for Go. Open the `$GOPATH/src/github.com/stellar/go` directory with it. Then in the application's Preferences, open the Go configuration tree, and:
 
  1. Visit GOROOT, and set the GOROOT to the `brew` installed location. The dropdown will locate it automatically.
